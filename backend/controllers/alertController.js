@@ -1,6 +1,6 @@
 // backend/controllers/alertController.js
 import Alert from "../models/alertModel.js";
-import User from "../models/UserModel.js";
+import User from "../models/userModel.js";
 import { sendExpoPush } from "../utils/fcm.js"; // make sure this file exports sendExpoPush
 import { sendAlertEmail } from "../utils/mailer.js"; // optional - keep if implemented
 import Twilio from "twilio";

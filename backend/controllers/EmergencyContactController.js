@@ -1,6 +1,6 @@
 import EmergencyContact from "../models/EmergencyContactModel.js";
 import mongoose from "mongoose";
-import User from "../models/UserModel.js";
+import User from "../models/userModel.js";
 
 /**
  * Add an emergency contact for a user
