@@ -1,35 +1,14 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { emitAuthLogout } from "../utils/authEvents";
-import Constants from 'expo-constants';
-import { Platform } from 'react-native';
 
-// Resolve backend host dynamically in dev so physical devices can reach the machine.
-// Priority: debuggerHost (Expo) -> fallback hardcoded LAN IP.
-let host = "10.100.1.107"; // fallback — update if needed
-try {
-  const manifest = Constants.manifest || Constants.expoConfig || {};
-  const debuggerHost = manifest.debuggerHost || (manifest.extra && manifest.extra.host) || null;
-  if (debuggerHost) {
-    host = String(debuggerHost).split(":")[0];
-  }
-} catch (e) {
-  // ignore and use fallback
-}
-
-// If running on Android emulator, point to host machine loopback
-try {
-  if (Platform.OS === 'android' && !Constants.isDevice) {
-    host = '10.0.2.2';
-  }
-} catch (e) {}
-
-const API_BASE = `http://10.100.1.107:5000/api`;
-console.log('API_BASE resolved to', API_BASE);
+const API_BASE = "http://10.79.83.100:5000/api";
+console.log("API_BASE resolved to", API_BASE);
 
 const API = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
+  timeout: 10000,
 });
 
 // Attach token from AsyncStorage key APP_USER_V1
@@ -40,10 +19,9 @@ API.interceptors.request.use(async (config) => {
       const parsed = JSON.parse(raw);
       if (parsed.token) {
         config.headers["Authorization"] = `Bearer ${parsed.token}`;
-        // debug: indicate token attached
-        console.log('API: attaching token to request');
+        console.log("API: attaching token to request");
       } else {
-        console.log('API: no token found in storage');
+        console.log("API: no token found in storage");
       }
     }
   } catch (e) {
@@ -57,36 +35,40 @@ API.interceptors.response.use(
   (res) => res,
   async (error) => {
     const status = error?.response?.status;
-    console.warn('API response error', status, error?.response?.data || error?.message || error);
+    console.warn(
+      "API response error",
+      status,
+      error?.response?.data || error?.message || error
+    );
     if (status === 401) {
-      try { await AsyncStorage.removeItem("APP_USER_V1"); } catch {}
+      try {
+        await AsyncStorage.removeItem("APP_USER_V1");
+      } catch {}
       emitAuthLogout();
     }
     return Promise.reject(error);
   }
 );
 
-// ----------- Auth helpers (use centralized axios instance) -------------
+// ----------- Auth helpers -------------
 export const register = (data) =>
-  API.post(`/auth/register`, {
+  API.post("/auth/register", {
     name: data.name,
     email: data.email,
     password: data.password,
   });
 
 export const login = (data) =>
-  API.post(`/auth/login`, { email: data.email, password: data.password });
+  API.post("/auth/login", { email: data.email, password: data.password });
 
 // ----------- Emergency contacts helpers -------------
-// If `userId` is provided (fallback), call the legacy endpoint that requires it.
-export const getEmergencyContacts = () => API.get(`/emergency-contacts`);
+export const getEmergencyContacts = () => API.get("/emergency-contacts");
 
-export const addEmergencyContact = (data) => {
-  // backend accepts either { userId, name, phone } or { name, phone } when authenticated
-  return API.post(`/emergency-contacts/add`, data);
-};
+export const addEmergencyContact = (data) =>
+  API.post("/emergency-contacts/add", data);
 
-export const deleteEmergencyContact = (contactId) => API.delete(`/emergency-contacts/${contactId}`);
+export const deleteEmergencyContact = (contactId) =>
+  API.delete(`/emergency-contacts/${contactId}`);
 
 // ----------- Misc helpers -------------
 export const updateToken = (data) =>
