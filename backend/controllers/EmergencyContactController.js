@@ -1,4 +1,4 @@
-import EmergencyContact from "../models/EmergencyContactModel.js";
+import EmergencyContact from "../models/emergencyContactModel.js";
 import mongoose from "mongoose";
 import User from "../models/userModel.js";
 
