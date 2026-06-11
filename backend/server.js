@@ -9,8 +9,8 @@ import connectDB from "./config/db.js";
 // Import routes
 import alertRoutes from "./routes/alertRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import authRoutes from "./routes/AuthRoutes.js";
-import emergencyContactRoutes from "./routes/emergencyContactRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import emergencyContactRoutes from "./routes/EmergencyContactRoutes.js";
 
 console.log("🔗 GSCRIPT_URL =", process.env.GSCRIPT_URL);
 
